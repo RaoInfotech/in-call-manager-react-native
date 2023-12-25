@@ -62,6 +62,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Random;
 import java.util.Set;
+import java.lang.reflect.Method;
 
 import com.zxcpoiu.incallmanager.AppRTC.AppRTCBluetoothManager;
 
@@ -873,11 +874,30 @@ public class InCallManagerModule extends ReactContextBaseJavaModule implements L
         });
     }
 
-    @ReactMethod
+    /** @ReactMethod
     public void setSpeakerphoneOn(final boolean enable) {
         if (enable != audioManager.isSpeakerphoneOn())  {
             Log.d(TAG, "setSpeakerphoneOn(): " + enable);
 	    audioManager.setMode(defaultAudioMode);
+            audioManager.setSpeakerphoneOn(enable);
+        }
+    } */
+
+    /**  This method enable and disable speaker... */
+    @ReactMethod
+    public void setSpeakerphoneOn(final boolean enable) {
+        try {
+            Class audioSystemClass = Class.forName("android.media.AudioSystem");
+            Method setForceUse = audioSystemClass.getMethod("setForceUse", int.class, int.class);
+            setForceUse.invoke(null, 1, 1);
+        }catch (Exception err){
+            err.printStackTrace();
+        }
+
+
+        if (enable != audioManager.isSpeakerphoneOn())  {
+            Log.d(TAG, "setSpeakerphoneOn(): " + enable);
+            audioManager.setMode(AudioManager.MODE_IN_COMMUNICATION);
             audioManager.setSpeakerphoneOn(enable);
         }
     }
